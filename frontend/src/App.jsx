@@ -15,6 +15,7 @@ import PurvaPanorama from './exclusiveProjects/PurvaPanorama';
 import HubtownSeasonsEcuador from './fastMovingProjects/HubtownSeasonsEcuador';
 import ContactUsPage from './pages/ContactUs';
 import Login from './pages/Login'; // Your Login Component
+import HomeDashboard from './Dashboard/HomeDashboard';
 
 // Simple Protected Dashboard Component Placeholder
 const Dashboard = () => {
@@ -71,7 +72,7 @@ function App() {
           {/* Protected Dashboard Route */}
           <Route 
             path="/admin" 
-            element={admin ? <Dashboard /> : <Navigate to="/login" replace />} 
+            element={admin ? <HomeDashboard /> : <Navigate to="/login" replace />} 
           />
         </Routes>
       </MainLayout>
