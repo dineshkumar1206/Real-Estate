@@ -24,7 +24,7 @@ export const loginAdmin = createAsyncThunk(
           name: response.data.name,
           role: response.data.role,
         };
-        localStorage.setItem("nextShow_admin", JSON.stringify(userDataToStore));
+        localStorage.setItem("RealEstate_admin", JSON.stringify(userDataToStore));
       }
 
       return response.data;

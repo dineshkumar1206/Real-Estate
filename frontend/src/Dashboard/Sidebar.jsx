@@ -1,27 +1,26 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom"; // ⬅️ Imported for home redirection
-// import { logoutAdmin } from "../../redux/AdminAuthSlice/AdminAuthSlice"; // ⬅️ Uncommented
-import { Flame, Rocket, Gem, LogOut } from "lucide-react"; // ⬅️ Modern Lucide Icons
+import { useNavigate } from "react-router-dom"; 
+import { logoutAdmin } from "../redux/AdminAuthSlice/AdminAuthSlice"; //[cite: 2]
+import { Flame, Rocket, Gem, LogOut } from "lucide-react"; 
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize routing trigger
+  const navigate = useNavigate(); 
 
-  // Clean menu item layout using Lucide components
   const menuItems = [
     { id: "fast-moving", label: "Fast Moving Projects", icon: Flame },
     { id: "latest-launches", label: "Latest Property Launches", icon: Rocket },
     { id: "exclusive", label: "Exclusive Projects", icon: Gem },
   ];
 
-  const handleLogout = async () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      // 1. Trigger Redux to clear local states and strip HTTP cookies
-      await dispatch(logoutAdmin());
-      // 2. Safely bounce user back to the public homepage layout
-      navigate("/");
-    }
+  // 🔑 Optimized Instant Logout Handler
+  const handleLogout = () => {
+    // 1. Fire the logout action to clean Redux state & drop backend cookies[cite: 2]
+    dispatch(logoutAdmin());
+    
+    // 2. Instantly force client-side redirect back to the root website homepage layout
+    navigate("/", { replace: true });
   };
 
   return (
