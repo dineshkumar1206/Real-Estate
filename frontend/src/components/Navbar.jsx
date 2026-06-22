@@ -1,31 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux'; // ⬅️ IMPORT REDUX HOOK
 import Dropdown from './Dropdown';
 
 export default function Navbar() {
-  // Desktop properties dropdown state
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Mobile menu sidebar drawer state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Mobile internal properties accordion toggle state
   const [isMobilePropOpen, setIsMobilePropOpen] = useState(false);
   
   const mobileMenuRef = useRef(null);
 
-  // Toggle desktop properties dropdown
+  // 🔑 READ ADMIN LOGGED-IN STATE FROM GLOBAL REDUX STORE
+  const { admin } = useSelector((state) => state.admin);
+
   const handleToggle = (e) => {
     e.preventDefault();
     setIsOpen(!isOpen);
   };
 
-  // Toggle mobile internal accordion menu panel explicitly
   const handleMobilePropToggle = (e) => {
     e.preventDefault();
     setIsMobilePropOpen(!isMobilePropOpen);
   };
 
-  // Close menus automatically if a user clicks outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -42,10 +40,9 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-[#FFFFFF] sticky top-0 z-50 px-6 py-3 md:px-16 border-b border-orange-100/50">
-      {/* Boxed Inner Container matching your Hero width */}
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
         
-        {/* Left Side: Logo Container - Pinned Left */}
+        {/* Left Side: Logo */}
         <a href="/" className="flex items-center z-10 hover:opacity-90 transition-opacity">
           <img 
             src="/images/logo.webp" 
@@ -54,7 +51,7 @@ export default function Navbar() {
           />
         </a>
 
-        {/* Center: Desktop Navigation Links — visible from md (768px) and up */}
+        {/* Center: Desktop Navigation Links */}
         <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none">
           <div className="flex items-center space-x-8 font-medium text-gray-800 pointer-events-auto">
             <a href="/" className="hover:text-blue-600 transition-colors">Home</a>
@@ -95,10 +92,26 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right Side Balance Spacer for Desktop — visible from md and up */}
-        <div className="w-20 h-20 invisible hidden md:block"></div>
+        {/* Right Side: Dynamic Button (Login or Dashboard) */}
+        <div className="hidden md:block z-10">
+          {admin ? (
+            <a 
+              href="/admin" 
+              className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition shadow-md shadow-emerald-100"
+            >
+              Dashboard
+            </a>
+          ) : (
+            <a 
+              href="/login" 
+              className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md shadow-blue-100"
+            >
+              Admin Login
+            </a>
+          )}
+        </div>
 
-        {/* Hamburger Button — only on mobile (below md / below 768px) */}
+        {/* Hamburger Button (Mobile) */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="mobile-toggle-btn block md:hidden p-2 pr-1 text-gray-800 hover:text-blue-600 focus:outline-none cursor-pointer z-50 mr-1"
@@ -120,7 +133,7 @@ export default function Navbar() {
 
       </div>
 
-      {/* --- MOBILE SLIDEOUT DRAWER — only on mobile (below md / below 768px) --- */}
+      {/* --- MOBILE SLIDEOUT DRAWER --- */}
       <div
         ref={mobileMenuRef}
         className={`fixed top-0 right-0 h-screen w-72 bg-[#FFFFFF] shadow-2xl border-l border-orange-100 transform transition-transform duration-300 ease-in-out z-40 md:hidden pt-24 ${
@@ -176,10 +189,31 @@ export default function Navbar() {
           <a 
             href="/contact" 
             onClick={() => setIsMobileMenuOpen(false)}
-            className="hover:text-blue-600 transition-colors"
+            className="hover:text-blue-600 transition-colors pb-4"
           >
             Contact Us
           </a>
+
+          {/* 🔑 MOBILE ACCOUNT ACCESS BUTTON */}
+          <div className="pt-2">
+            {admin ? (
+              <a 
+                href="/admin" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-center bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-emerald-700 transition"
+              >
+                Dashboard
+              </a>
+            ) : (
+              <a 
+                href="/login" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
+              >
+                Admin Login
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </nav>
