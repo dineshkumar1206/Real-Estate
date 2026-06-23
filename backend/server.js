@@ -41,3 +41,5 @@ sequelize
   .catch((error) => {
     console.error("❌ Database connection failed:", error.message);
   });
+
+  module.exports = app;
