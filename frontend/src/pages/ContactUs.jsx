@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../api'; // ⬅️ Imported your API instance
 import { 
   Phone, 
   Mail, 
@@ -7,19 +8,16 @@ import {
   Clock, 
   Send, 
   CheckCircle, 
-  Building2, 
-  MessageSquare,
   ShieldCheck
 } from 'lucide-react';
 
 export default function ContactUsPage() {
-  // Form State
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    userType: 'Buyer', // Buyer, Owner, Tenant, Agent
-    projectInterest: 'General Query', // Specific project options
+    userType: 'Buyer', 
+    projectInterest: 'General Query', 
     message: '',
     agreeToTerms: false
   });
@@ -35,25 +33,48 @@ export default function ContactUsPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // 🔑 Connected Live Form Submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.agreeToTerms) {
+      alert("Please accept the communication terms to proceed.");
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulating API real-estate pipeline submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      // Reset form variables
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        userType: 'Buyer',
-        projectInterest: 'General Query',
-        message: '',
-        agreeToTerms: false
+    try {
+      // Send parameters straight to our new endpoint link
+      const response = await api.post("/inquiry/contact-page-query", {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        userType: formData.userType,
+        projectInterest: formData.projectInterest,
+        message: formData.message,
       });
-    }, 1500);
+
+      if (response.data.success) {
+        setSubmitSuccess(true);
+        // Clear inputs completely
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          userType: 'Buyer',
+          projectInterest: 'General Query',
+          message: '',
+          agreeToTerms: false
+        });
+      }
+    } catch (error) {
+      console.error("Contact form error:", error);
+      const msg = error.response?.data?.message || "Connection failure. Please try again.";
+      alert(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,9 +84,7 @@ export default function ContactUsPage() {
       viewport={{ once: true }}
       variants={{
         hidden: {},
-        visible: {
-          transition: { staggerChildren: 0.15 }
-        }
+        visible: { transition: { staggerChildren: 0.15 } }
       }}
       className="w-full bg-gray-50 py-12 md:py-20 font-sans"
     >
@@ -74,20 +93,14 @@ export default function ContactUsPage() {
         {/* Header Block */}
         <div className="max-w-3xl mb-12 md:mb-16">
           <motion.h1 
-            variants={{
-              hidden: { opacity: 0, y: 40 },
-              visible: { opacity: 1, y: 0 }
-            }}
+            variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-4"
           >
             Get in Touch with Our Property Experts
           </motion.h1>
           <motion.p 
-            variants={{
-              hidden: { opacity: 0, y: 40 },
-              visible: { opacity: 1, y: 0 }
-            }}
+            variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-gray-500 text-base sm:text-lg leading-relaxed"
           >
@@ -98,16 +111,12 @@ export default function ContactUsPage() {
         {/* Core Content Grid */}
         <div className="grid lg:grid-cols-[380px_1fr] gap-10 items-start">
           
-          {/* Left Column: Office Contacts Card Container */}
+          {/* Left Column Contact Details Card */}
           <motion.div 
-            variants={{
-              hidden: { opacity: 0, y: 40 },
-              visible: { opacity: 1, y: 0 }
-            }}
+            variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="bg-[#0B2354] text-white rounded-3xl p-6 md:p-8 shadow-xl space-y-8 relative overflow-hidden"
           >
-            {/* Background design layer elements */}
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-xl pointer-events-none" />
 
             <div>
@@ -167,12 +176,9 @@ export default function ContactUsPage() {
             </div>
           </motion.div>
 
-          {/* Right Column: Dynamic Real Estate Interactive Submission Form */}
+          {/* Right Column Interactive Form Submission Layout */}
           <motion.div 
-            variants={{
-              hidden: { opacity: 0, y: 40 },
-              visible: { opacity: 1, y: 0 }
-            }}
+            variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="bg-white rounded-3xl border border-gray-200 p-6 md:p-10 shadow-sm relative overflow-hidden"
           >
@@ -186,7 +192,6 @@ export default function ContactUsPage() {
                   exit={{ opacity: 0, y: -20 }}
                 >
                   <div className="grid sm:grid-cols-2 gap-5">
-                    {/* Full Name Input */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Full Name</label>
                       <input 
@@ -200,7 +205,6 @@ export default function ContactUsPage() {
                       />
                     </div>
 
-                    {/* Phone Input */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Mobile Number</label>
                       <input 
@@ -216,7 +220,6 @@ export default function ContactUsPage() {
                     </div>
                   </div>
 
-                  {/* Email Input */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Email Address</label>
                     <input 
@@ -231,7 +234,6 @@ export default function ContactUsPage() {
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-5">
-                    {/* I am a... Select profile filter */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">I am a</label>
                       <select 
@@ -240,14 +242,13 @@ export default function ContactUsPage() {
                         onChange={handleInputChange}
                         className="w-full text-sm border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white focus:outline-none focus:border-[#0B2354] transition-colors"
                       >
-                        <option value="Buyer">Prospective Buyer / Investor</option>
-                        <option value="Owner">Property Owner / Seller</option>
+                        <option value="Prospective Buyer">Prospective Buyer / Investor</option>
+                        <option value="Property Owner">Property Owner / Seller</option>
                         <option value="Tenant">Tenant looking to rent</option>
-                        <option value="Agent">Channel Partner / Broker Agent</option>
+                        <option value="Broker Agent">Channel Partner / Broker Agent</option>
                       </select>
                     </div>
 
-                    {/* Project Interest Target selector config */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Project Interest</label>
                       <select 
@@ -265,7 +266,6 @@ export default function ContactUsPage() {
                     </div>
                   </div>
 
-                  {/* Message Input text field space details area */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Message Details</label>
                     <textarea 
@@ -274,12 +274,11 @@ export default function ContactUsPage() {
                       required
                       value={formData.message}
                       onChange={handleInputChange}
-                      placeholder="Please mention your preferred configurations (e.g. 2 BHK, 3 BHK), budget limits or callback schedules..."
+                      placeholder="Please mention your preferences..."
                       className="w-full text-sm border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white focus:outline-none focus:border-[#0B2354] transition-colors resize-none"
                     />
                   </div>
 
-                  {/* Legal Authorization Consent Disclaimer Box checkbox fields */}
                   <div className="flex items-start gap-2.5 pt-1">
                     <input 
                       type="checkbox" 
@@ -295,7 +294,6 @@ export default function ContactUsPage() {
                     </label>
                   </div>
 
-                  {/* Action submission execute button setup elements configuration */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -311,7 +309,6 @@ export default function ContactUsPage() {
                   </button>
                 </motion.form>
               ) : (
-                /* Success placeholder template frame state view toggle */
                 <motion.div 
                   key="success-card"
                   initial={{ opacity: 0, scale: 0.95 }}

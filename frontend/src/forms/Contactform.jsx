@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, MessageCircle } from "lucide-react";
+import api from "../api"; // ⬅️ Import your customized Axios instance
 
 /**
  * ContactForm
@@ -10,10 +11,42 @@ import { CheckCircle2, MessageCircle } from "lucide-react";
 export default function ContactForm({ city = "Dombivali", subtitle = "Lodha Group Centre Park" }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Callback requested for ${name} — ${phone}`);
+
+    // 1. Client-Side Validation Safeguard
+    if (!name.trim() || !phone.trim()) {
+      alert("Please enter both your name and phone number.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Combine city and subtitle to dynamically track which property they requested a callback for
+    const propertyName = `${city} - ${subtitle}`;
+
+    try {
+      // 2. Send Data straight to our backend endpoint route
+      const response = await api.post("/inquiry/property-callback", {
+        name,
+        phone,
+        propertyName,
+      });
+
+      if (response.data.success) {
+        alert(response.data.message); // "Callback request registered successfully!..."
+        setName("");                  // Reset fields on success
+        setPhone("");
+      }
+    } catch (error) {
+      console.error("Form Submission Error:", error);
+      const errorMsg = error.response?.data?.message || "Something went wrong. Please try again.";
+      alert(errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -24,13 +57,14 @@ export default function ContactForm({ city = "Dombivali", subtitle = "Lodha Grou
       <p className="text-sm text-gray-500 text-center mt-0.5 mb-4">{subtitle}</p>
 
       {/* Form */}
-      <div className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="text"
           placeholder="Enter your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          disabled={isSubmitting}
+          className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
         />
 
         <div className="flex border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
@@ -45,17 +79,19 @@ export default function ContactForm({ city = "Dombivali", subtitle = "Lodha Grou
             placeholder="Enter your phone number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="flex-1 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+            disabled={isSubmitting}
+            className="flex-1 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none disabled:opacity-50"
           />
         </div>
 
         <button
-          onClick={handleSubmit}
-          className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-md text-sm transition-colors duration-200"
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-900 hover:bg-blue-800 disabled:bg-blue-900/50 text-white font-semibold py-3 rounded-md text-sm transition-colors duration-200 cursor-pointer flex justify-center items-center"
         >
-          Request CallBack
+          {isSubmitting ? "Processing..." : "Request CallBack"}
         </button>
-      </div>
+      </form>
 
       <p className="text-xs text-gray-400 mt-3 text-center leading-relaxed">
         By continuing, you're agreeing to the{" "}

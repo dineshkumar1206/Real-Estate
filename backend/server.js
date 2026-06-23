@@ -6,6 +6,7 @@ require("dotenv").config();
 const sequelize = require("./config/db");
 const AdminAuth = require("./models/AdminAuth/adminAuth"); 
 const adminRoutes = require("./routes/AdminAuth/AdminRoutes"); // ⬅️ IMPORT ROUTES
+const inquiryRoutes = require("./routes/Inquiry/inquiryRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(
 
 // ⬅️ ATTACH ROUTES UNDER /api/auth
 app.use("/api/auth", adminRoutes);
+app.use("/api/inquiry", inquiryRoutes);
 
 app.get("/", (req, res) => {
   res.send("ConnectYou RealEstate Backend is running flawlessly!");
