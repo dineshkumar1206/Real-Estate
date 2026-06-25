@@ -15,16 +15,20 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://real-estate-alpha-sand-38.vercel.app"
+    ], 
     credentials: true,
   })
 );
 
 // ⬅️ ATTACH ROUTES UNDER /api/auth
-app.use("/api/auth", adminRoutes);
-app.use("/api/inquiry", inquiryRoutes);
+app.use("/connectyou-api/api/auth", adminRoutes);
+app.use("/connectyou-api/api/inquiry", inquiryRoutes);
 
-app.get("/", (req, res) => {
+app.get("/connectyou-api/api", (req, res) => {
   res.send("ConnectYou RealEstate Backend is running flawlessly!");
 });
 
