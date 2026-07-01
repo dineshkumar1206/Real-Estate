@@ -64,6 +64,15 @@ app.get("/connectyou-api/api/db-check", async (req, res) => {
   }
 });
 
+// 🚨 Global Error Handler Middleware
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler Catch:", err.stack || err.message || err);
+  res.status(err.status || err.statusCode || 500).json({
+    success: false,
+    message: err.message || "An unexpected internal server error occurred on the backend.",
+  });
+});
+
 const PORT = process.env.PORT || 5175;
 
 sequelize
