@@ -3,10 +3,13 @@ const jwt = require("jsonwebtoken");
 const AdminAuth = require("../../models/AdminAuth/adminAuth");
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const isProd = process.env.NODE_ENV === "production" || 
+               (process.env.DB_USER && process.env.DB_USER.startsWith("amigoweb_"));
+
 const COOKIE_OPTIONS = {
   httpOnly: true, // Prevents client-side scripts from reading the cookie
-  secure: process.env.NODE_ENV === "production", 
-  sameSite: "lax",
+  secure: isProd, 
+  sameSite: isProd ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
@@ -103,10 +106,13 @@ exports.getMeAdmin = async (req, res) => {
 
 // 4. Admin Logout
 exports.logoutAdmin = (req, res) => {
+  const isProd = process.env.NODE_ENV === "production" || 
+                 (process.env.DB_USER && process.env.DB_USER.startsWith("amigoweb_"));
+
   res.clearCookie("admin_jwt", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
   res.status(200).json({ success: true, message: "Logged out successfully." });
 };
