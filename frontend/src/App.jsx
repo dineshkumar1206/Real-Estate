@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
@@ -16,6 +16,8 @@ import HubtownSeasonsEcuador from './fastMovingProjects/HubtownSeasonsEcuador';
 import ContactUsPage from './pages/ContactUs';
 import Login from './pages/Login'; // Your Login Component
 import HomeDashboard from './Dashboard/HomeDashboard';
+import PropertyDetail from './pages/PropertyDetail';
+import { fetchProjects } from './redux/dashbord-card-1/projectSlice';
 
 // Simple Protected Dashboard Component Placeholder
 const Dashboard = () => {
@@ -48,6 +50,11 @@ const MainLayout = ({ children }) => {
 
 function App() {
   const { admin } = useSelector((state) => state.admin);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
 
   return (
     <BrowserRouter>
@@ -65,6 +72,9 @@ function App() {
           <Route path="/centre-park" element={<CentrePark />} />
           <Route path="/purva-panorama" element={<PurvaPanorama />} />
           <Route path="/hubtown-seasons-ecuador" element={<HubtownSeasonsEcuador />} />
+          
+          {/* Dynamic Property Pages */}
+          <Route path="/property/:projectRoute" element={<PropertyDetail />} />
 
           {/* Login Route (Now shows Navbar & Footer as requested) */}
           <Route path="/login" element={<Login />} />

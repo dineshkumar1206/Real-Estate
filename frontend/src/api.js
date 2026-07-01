@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: `http://localhost:5175/api`,
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  baseURL: `https://amigowebster.in/connectyou-api/api`,
+  baseURL: `http://localhost:5175/connectyou-api/api`, // Local server API URL
+  // baseURL: `https://amigowebster.in/connectyou-api/api`, // Live server API URL
   withCredentials: true, // Crucial for receiving cookies from backend
 });
 

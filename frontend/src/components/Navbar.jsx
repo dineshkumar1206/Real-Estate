@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux'; // ⬅️ IMPORT REDUX HOOK
 import Dropdown from './Dropdown';
 
 export default function Navbar() {
@@ -10,9 +9,6 @@ export default function Navbar() {
   const [isMobilePropOpen, setIsMobilePropOpen] = useState(false);
   
   const mobileMenuRef = useRef(null);
-
-  // 🔑 READ ADMIN LOGGED-IN STATE FROM GLOBAL REDUX STORE
-  const { admin } = useSelector((state) => state.admin);
 
   const handleToggle = (e) => {
     e.preventDefault();
@@ -92,23 +88,14 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right Side: Dynamic Button (Login or Dashboard) */}
+        {/* Right Side: Fixed Login Button */}
         <div className="hidden md:block z-10">
-          {admin ? (
-            <a 
-              href="/admin" 
-              className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition shadow-md shadow-emerald-100"
-            >
-              Dashboard
-            </a>
-          ) : (
-            <a 
-              href="/login" 
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md shadow-blue-100"
-            >
-              Admin Login
-            </a>
-          )}
+          <a 
+            href="/login" 
+            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md shadow-blue-100"
+          >
+            Login
+          </a>
         </div>
 
         {/* Hamburger Button (Mobile) */}
@@ -194,25 +181,15 @@ export default function Navbar() {
             Contact Us
           </a>
 
-          {/* 🔑 MOBILE ACCOUNT ACCESS BUTTON */}
+          {/* Fixed Mobile Login Button */}
           <div className="pt-2">
-            {admin ? (
-              <a 
-                href="/admin" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-center bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-emerald-700 transition"
-              >
-                Dashboard
-              </a>
-            ) : (
-              <a 
-                href="/login" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
-              >
-                Admin Login
-              </a>
-            )}
+            <a 
+              href="/login" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
+            >
+              Login
+            </a>
           </div>
         </div>
       </div>
