@@ -1,8 +1,12 @@
 import axios from "axios";
 
+const isLocal = typeof window !== "undefined" && 
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
 const api = axios.create({
-  baseURL: `http://localhost:5175/connectyou-api/api`, // Local server API URL
-  // baseURL: `https://amigowebster.in/connectyou-api/api`, // Live server API URL
+  baseURL: isLocal 
+    ? "http://localhost:5175/connectyou-api/api" 
+    : "https://amigowebster.in/connectyou-api/api",
   withCredentials: true, // Crucial for receiving cookies from backend
 });
 
