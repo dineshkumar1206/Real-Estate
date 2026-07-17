@@ -76,7 +76,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5175;
 
 sequelize
-  .sync()
+  .sync({ alter: true })
   .then(() => {
     console.log("🚀 Database connected & synced successfully!");
     app.listen(PORT, () => {

@@ -101,6 +101,14 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
                 </select>
               </div>
               <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-400 uppercase">Project Type / Page Section *</label>
+                <select value={formData.projectType || 'fast-moving'} onChange={e => setFormData({...formData, projectType: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none cursor-pointer">
+                  <option value="fast-moving">Fast Moving Projects</option>
+                  <option value="exclusive">Exclusive Projects</option>
+                  <option value="latest-launches">Latest Property Launches</option>
+                </select>
+              </div>
+              <div className="space-y-1">
                 <label className="text-xs font-semibold text-gray-400 uppercase">Configuration *</label>
                 <input type="text" required placeholder="e.g. 1, 2, 3 BHK" value={formData.config || ''} onChange={e => setFormData({...formData, config: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:outline-none" />
               </div>
