@@ -96,7 +96,17 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
                   <option value="Under Construction">Under Construction</option>
                   <option value="Ready to Move">Ready to Move</option>
                   <option value="Newly Launched">Newly Launched</option>
+                  <option value="Exclusive Collection">Exclusive Collection</option>
+                  <option value="By Invitation Only">By Invitation Only</option>
                 </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-400 uppercase">Configuration *</label>
+                <input type="text" required placeholder="e.g. 1, 2, 3 BHK" value={formData.config || ''} onChange={e => setFormData({...formData, config: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:outline-none" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-400 uppercase">Builtup Area *</label>
+                <input type="text" required placeholder="e.g. 453 - 884 sq ft" value={formData.area || ''} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:outline-none" />
               </div>
             </div>
           </div>

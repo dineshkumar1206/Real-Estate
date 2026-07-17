@@ -11,13 +11,16 @@ export default function FastMovingProjects() {
   useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
+
+  const projects = listings.filter(p => !p.projectType || p.projectType === 'fast-moving');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
   const [formData, setFormData] = useState({
     route: '', status: 'Ready to Move', title: '', location: '', price: '', 
-    config: '', area: '', builder: '', image: null, carouselImages: [], amenities: []
+    config: '', area: '', builder: '', image: null, carouselImages: [], amenities: [],
+    projectType: 'fast-moving'
   });
 
   const handleOpenAdd = () => {
@@ -27,7 +30,7 @@ export default function FastMovingProjects() {
       config: '', area: '', builder: '', image: null, carouselImages: [],
       possessionDate: '', reraId: '', totalApartments: '', launchDate: '',
       availability: 'New and Resale', features: '', description: '', floorPlans: {},
-      amenities: []
+      amenities: [], projectType: 'fast-moving'
     });
     setIsModalOpen(true);
   };
@@ -38,7 +41,8 @@ export default function FastMovingProjects() {
       ...project, 
       existingCarousel: project.carouselImages, 
       carouselImages: [],
-      amenities: project.amenities || []
+      amenities: project.amenities || [],
+      projectType: project.projectType || 'fast-moving'
     });
     setIsModalOpen(true);
   };
@@ -56,7 +60,7 @@ export default function FastMovingProjects() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        {listings.map((project) => (
+        {projects.map((project) => (
           <div key={project.id} className="border rounded-3xl overflow-hidden shadow-md flex flex-col bg-white">
             <div className="h-48 w-full relative">
               <img src={project.image} alt={project.title} className="w-full h-full object-cover" />

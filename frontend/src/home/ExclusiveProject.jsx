@@ -1,47 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Heart, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// ─── Project Data ─────────────────────────────────────────────────────────────
-const projects = [
-  {
-    id: 1,
-    name: 'Godrej Varanya',
-    route: '/centre-park',
-    location: 'Dombivali',
-    price: '45.49 L Onwards',
-    configuration: '1, 2, 3 BHK',
-    builtupArea: '453 - 884 sq ft',
-    images: [
-      '/images/Centre-Park.jpg',
-    ],
-  },
-  {
-    id: 2,
-    name: 'Today - Citadel Juinagar',
-    route: '/purva-panorama',
-    location: 'Thane, Mumbai',
-    price: '1.80 Cr Onwards',
-    configuration: '2, 3 BHK',
-    builtupArea: '716 - 1060 sq ft',
-    images: [
-      '/images/Purva-Panorama.jpeg',
-    ],
-  },
-  {
-    id: 3,
-    name: 'L&T -Thane evara',
-    route: '/purva-panorama',
-    location: 'Thane West',
-    price: '1.15 Cr Onwards',
-    configuration: '2 BHK',
-    builtupArea: '662 sq ft',
-    images: [
-      '/images/West-county.jpg',
-    ],
-  },
-];
 
 // ─── Single Project Card ──────────────────────────────────────────────────────
 function ProjectCard({ project }) {
@@ -49,7 +10,7 @@ function ProjectCard({ project }) {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-500/25 group">
 
       {/* ── Left: Info Panel ── */}
       <div className="flex flex-col justify-between p-6 md:p-8 md:w-[42%] flex-shrink-0">
@@ -58,7 +19,7 @@ function ProjectCard({ project }) {
         <div>
           <div className="flex items-start justify-between gap-4 mb-1">
             <h3 className="text-[20px] md:text-[22px] font-bold text-gray-900 leading-snug">
-              {project.name}
+              {project.title}
             </h3>
             <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
               <button
@@ -88,12 +49,12 @@ function ProjectCard({ project }) {
           <div className="flex items-stretch gap-0 mb-8">
             <div className="pr-5">
               <p className="text-gray-400 text-[12px] mb-1">Configuration</p>
-              <p className="text-gray-900 font-semibold text-[15px]">{project.configuration}</p>
+              <p className="text-gray-900 font-semibold text-[15px]">{project.config}</p>
             </div>
             <div className="w-px bg-gray-200 mx-1" />
             <div className="pl-5">
               <p className="text-gray-400 text-[12px] mb-1">Builtup area</p>
-              <p className="text-gray-900 font-semibold text-[15px]">{project.builtupArea}</p>
+              <p className="text-gray-900 font-semibold text-[15px]">{project.area}</p>
             </div>
           </div>
         </div>
@@ -105,7 +66,7 @@ function ProjectCard({ project }) {
           </button>
           <button 
            onClick={() => {
-                 navigate(project.route);
+                 navigate(`/property${project.route}`);
                  window.scrollTo({
                    top: 0,
                    behavior: "smooth",
@@ -121,12 +82,12 @@ function ProjectCard({ project }) {
       <div className="relative flex-1 min-h-[220px] md:min-h-0 overflow-hidden">
         {/* Main image */}
         <img
-          src={project.images[0]}
-          alt={`${project.name} view`}
-          className="w-full h-full object-cover"
+          src={project.image}
+          alt={`${project.title} view`}
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           style={{ minHeight: '220px' }}
           onError={(e) => {
-            e.target.src = `https://placehold.co/800x480/cbd5e1/64748b?text=${encodeURIComponent(project.name)}`;
+            e.target.src = `https://placehold.co/800x480/cbd5e1/64748b?text=${encodeURIComponent(project.title)}`;
           }}
         />
       </div>
@@ -136,7 +97,17 @@ function ProjectCard({ project }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ExclusiveProjects() {
+  const { listings } = useSelector((state) => state.projects);
+  const projects = listings.filter(p => p.projectType === 'exclusive');
+
   const [current, setCurrent] = useState(0);
+
+  if (projects.length === 0) {
+    return null; // Don't render the section if there are no exclusive projects
+  }
+
+  // Ensure current index is valid
+  const validCurrent = current >= projects.length ? 0 : current;
 
   const prev = () => setCurrent((p) => (p - 1 + projects.length) % projects.length);
   const next = () => setCurrent((p) => (p + 1) % projects.length);
@@ -189,13 +160,13 @@ export default function ExclusiveProjects() {
         >
           <AnimatePresence mode="wait">
             <motion.div
-              key={current}
+              key={validCurrent}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.35, ease: "easeInOut" }}
             >
-              <ProjectCard project={projects[current]} />
+              <ProjectCard project={projects[validCurrent]} />
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -223,7 +194,7 @@ export default function ExclusiveProjects() {
                   key={i}
                   onClick={() => setCurrent(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    current === i ? 'w-6 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
+                    validCurrent === i ? 'w-6 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400'
                   }`}
                 />
               ))}

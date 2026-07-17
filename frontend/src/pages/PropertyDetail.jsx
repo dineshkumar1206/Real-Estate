@@ -131,6 +131,24 @@ export default function PropertyDetail() {
   const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
+  const similarScrollRef = useRef(null);
+  const [canScrollLeftSimilar, setCanScrollLeftSimilar] = useState(false);
+  const [canScrollRightSimilar, setCanScrollRightSimilar] = useState(true);
+
+  const checkSimilarScroll = () => {
+    const el = similarScrollRef.current;
+    if (!el) return;
+    setCanScrollLeftSimilar(el.scrollLeft > 4);
+    setCanScrollRightSimilar(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  const scrollSimilar = (dir) => {
+    const el = similarScrollRef.current;
+    if (!el) return;
+    const cardWidth = el.querySelector('[class*="flex-shrink-0"]')?.offsetWidth || 300;
+    el.scrollBy({ left: dir === 'left' ? -(cardWidth + 16) : (cardWidth + 16), behavior: 'smooth' });
+  };
+
   // Fetch listings if store is empty on load
   useEffect(() => {
     if (listings.length === 0) {
@@ -152,6 +170,18 @@ export default function PropertyDetail() {
     }, 4000);
     return () => clearInterval(timer);
   }, [project]);
+
+  useEffect(() => {
+    const el = similarScrollRef.current;
+    if (!el) return;
+    checkSimilarScroll();
+    el.addEventListener('scroll', checkSimilarScroll, { passive: true });
+    window.addEventListener('resize', checkSimilarScroll);
+    return () => {
+      el.removeEventListener('scroll', checkSimilarScroll);
+      window.removeEventListener('resize', checkSimilarScroll);
+    };
+  }, [listings, project]);
 
   if (isLoading) {
     return (
@@ -188,6 +218,11 @@ export default function PropertyDetail() {
   const mainImage = project.image || "https://placehold.co/1200x800?text=Listing+Cover";
   const gallery = Array.isArray(project.carouselImages) ? project.carouselImages : [];
 
+  // Filter similar projects in the same category
+  const similarProjects = listings.filter(
+    (p) => p.projectType === project.projectType && p.id !== project.id
+  );
+
   const openLightbox = (images, startIndex = 0) => {
     setLightbox({ images, startIndex });
   };
@@ -214,8 +249,8 @@ export default function PropertyDetail() {
   // Tabs for details section
   const NAV_TABS = [
     { label: "Overview", id: "overview" },
-    { label: "Description", id: "description" },
     { label: "Amenities", id: "amenities", disabled: amenitiesList.length === 0 },
+    { label: "Gallery", id: "gallery", disabled: gallery.length === 0 },
   ];
 
   return (
@@ -382,6 +417,26 @@ export default function PropertyDetail() {
           </div>
         </div>
 
+        {/* ── Quick Specs Summary Row (PropTiger Style) ── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 mt-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-800 shadow-sm">
+          <div>
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Configuration</p>
+            <p className="text-base font-bold text-slate-900 mt-1">{project.config || "N/A"}</p>
+          </div>
+          <div className="border-l border-gray-200 pl-6">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Carpet Area</p>
+            <p className="text-base font-bold text-slate-900 mt-1">{project.area || "N/A"}</p>
+          </div>
+          <div className="border-l border-gray-200 pl-6">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Possession Status</p>
+            <p className="text-base font-bold text-slate-900 mt-1">{project.status || "N/A"}</p>
+          </div>
+          <div className="border-l border-gray-200 pl-6">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Avg. Price</p>
+            <p className="text-base font-bold text-slate-900 mt-1">{project.price || "N/A"}</p>
+          </div>
+        </div>
+
         {/* ── Main content grid ───────────────────────────────────── */}
         <div className="mt-8 flex flex-col lg:flex-row gap-8 items-start">
           
@@ -479,16 +534,44 @@ export default function PropertyDetail() {
                         <span className="text-slate-800 text-[10px] bg-white px-2 py-0.5 rounded border">{project.route}</span>
                       </div>
                     </div>
+
+                    <div className="pt-6 border-t border-slate-200 space-y-4">
+                      <h3 className="text-base font-extrabold text-slate-900">About {project.title}</h3>
+                      <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                        {project.description || "No analytical property descriptions published yet. Please contact the developer directly for detailed information brochures."}
+                      </p>
+                    </div>
                   </div>
                 )}
 
-                {/* Tab content: Description */}
-                {activeTab === "description" && (
-                  <div className="space-y-4">
-                    <h3 className="text-base font-extrabold text-slate-900">About {project.title}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                      {project.description || "No analytical property descriptions published yet. Please contact the developer directly for detailed information brochures."}
-                    </p>
+                {/* Tab content: Gallery */}
+                {activeTab === "gallery" && (
+                  <div className="space-y-6">
+                    <h3 className="text-base font-extrabold text-slate-900">{project.title} Gallery</h3>
+                    {gallery.length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                        {gallery.map((img, idx) => (
+                          <div
+                            key={img.id || idx}
+                            onClick={() => openLightbox(gallery, idx)}
+                            className="relative aspect-video rounded-xl overflow-hidden cursor-pointer group bg-slate-900 shadow-sm border border-slate-200"
+                          >
+                            <img
+                              src={img.src}
+                              alt={img.alt || `Gallery image ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                              <span className="text-white text-xs font-semibold bg-black/55 px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Full
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-slate-500 text-sm">No gallery images uploaded yet.</p>
+                    )}
                   </div>
                 )}
 
@@ -524,6 +607,85 @@ export default function PropertyDetail() {
           </div>
 
         </div>
+
+        {/* ── Similar Projects Section ── */}
+        {similarProjects.length > 0 && (
+          <div className="mt-16 border-t pt-10">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Similar Projects</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => scrollSimilar('left')}
+                  disabled={!canScrollLeftSimilar}
+                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-200
+                    ${!canScrollLeftSimilar
+                      ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white'
+                      : 'border-gray-300 text-gray-600 hover:border-black hover:text-black bg-white shadow-xs'
+                    }`}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  onClick={() => scrollSimilar('right')}
+                  disabled={!canScrollRightSimilar}
+                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-200
+                    ${!canScrollRightSimilar
+                      ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white'
+                      : 'border-gray-300 text-gray-600 hover:border-black hover:text-black bg-white shadow-xs'
+                    }`}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div
+              ref={similarScrollRef}
+              className="flex gap-5 overflow-x-auto scroll-smooth pb-3 hide-scrollbar"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+              {similarProjects.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    navigate(`/property${item.route}`);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] bg-white cursor-pointer rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-blue-500/20 transition-all duration-300 overflow-hidden group"
+                >
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-[180px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/320x180/e2e8f0/94a3b8?text=${encodeURIComponent(item.title)}`;
+                      }}
+                    />
+                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium px-3 py-1.5 rounded-full">
+                      {item.status}
+                    </div>
+                  </div>
+
+                  <div className="p-4 space-y-1.5">
+                    <h3 className="font-semibold text-gray-900 text-[15px] leading-snug line-clamp-1 group-hover:text-blue-900 transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-500 text-[13px]">{item.location}</p>
+                    <p className="font-bold text-[15px] text-[#C0573E]">{item.price}</p>
+                    <div className="flex items-center gap-2 text-[12px] text-gray-500 pt-0.5">
+                      <span>{item.config}</span>
+                      <span className="w-px h-3 bg-gray-300"></span>
+                      <span>{item.area}</span>
+                    </div>
+                    <p className="text-[12px] text-gray-400 pt-0.5">By {item.builder}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
 

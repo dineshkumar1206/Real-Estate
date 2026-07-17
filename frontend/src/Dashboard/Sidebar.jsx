@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom"; 
-import { logoutAdmin } from "../redux/AdminAuthSlice/AdminAuthSlice"; //[cite: 2]
-import { Flame, Rocket, Gem, LogOut } from "lucide-react"; 
+import { logoutAdmin } from "../redux/AdminAuthSlice/AdminAuthSlice"; 
+import { Flame, Rocket, Gem, LogOut, Home } from "lucide-react"; 
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const dispatch = useDispatch();
@@ -10,7 +10,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
   const menuItems = [
     { id: "fast-moving", label: "Fast Moving Projects", icon: Flame },
-    { id: "latest-launches", label: "Latest Property Launches", icon: Rocket },
+    { id: "latest-launches", label: "Newly launched projects", icon: Rocket },
     { id: "exclusive", label: "Exclusive Projects", icon: Gem },
   ];
 
@@ -67,7 +67,14 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       </div>
 
       {/* Bottom Section: Premium Logout Component */}
-      <div className="pt-5 border-t border-slate-800/80">
+      <div className="pt-5 border-t border-slate-800/80 space-y-2.5">
+        <button
+          onClick={() => navigate("/")}
+          className="w-full flex items-center justify-center space-x-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700/60 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer shadow-md"
+        >
+          <Home size={16} />
+          <span>Back to Home</span>
+        </button>
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-center space-x-2.5 bg-rose-950/40 text-rose-400 border border-rose-900/50 py-3.5 rounded-xl font-bold text-sm hover:bg-rose-600 hover:text-white transition-all duration-300 cursor-pointer shadow-md shadow-rose-950/20"

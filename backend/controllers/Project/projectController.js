@@ -49,6 +49,9 @@ exports.createProject = async (req, res) => {
       description,
       features,
       amenities,
+      projectType,
+      config,
+      area,
     } = req.body;
 
     if (!title || !builder || !location || !route) {
@@ -116,6 +119,9 @@ exports.createProject = async (req, res) => {
       amenities: parsedAmenities,
       image: mainImageUrl,
       carouselImages,
+      projectType: projectType || "fast-moving",
+      config: config || "",
+      area: area || "",
     });
 
     res.status(201).json(newProject);
@@ -145,6 +151,9 @@ exports.updateProject = async (req, res) => {
       amenities,
       existingCarouselImages,
       image: existingImage,
+      projectType,
+      config,
+      area,
     } = req.body;
 
     const project = await Project.findByPk(id);
@@ -230,6 +239,9 @@ exports.updateProject = async (req, res) => {
       amenities: parsedAmenities,
       image: mainImageUrl,
       carouselImages,
+      projectType: projectType !== undefined ? projectType : project.projectType,
+      config: config !== undefined ? config : project.config,
+      area: area !== undefined ? area : project.area,
     });
 
     res.status(200).json(project);

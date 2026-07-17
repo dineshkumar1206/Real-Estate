@@ -49,6 +49,14 @@ const Project = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    config: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    area: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     features: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -101,6 +109,11 @@ const Project = sequelize.define(
       set(value) {
         this.setDataValue("amenities", JSON.stringify(value || []));
       }
+    },
+    projectType: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      defaultValue: "fast-moving",
     },
   },
   {

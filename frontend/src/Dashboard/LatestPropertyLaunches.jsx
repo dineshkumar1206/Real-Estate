@@ -1,107 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Plus, Pencil, Trash2, MapPin, Building2, Home, Maximize2 } from 'lucide-react';
-import LatestPropertyForm from './LatestPropertyForm'; // Imports your separate form component
+import { fetchProjects, deleteProject, saveProjectWithMedia } from '../redux/dashbord-card-1/projectSlice';
+import ProjectForm from './ProjectForm'; // Imports the common project form layout
 
 export default function LatestPropertyLaunches() {
-  const [launches, setLaunches] = useState([
-    {
-      id: 1,
-      route: '/godrej-horizon-wadala',
-      status: 'Newly Launched',
-      title: 'Godrej Horizon Tower',
-      location: 'Wadala, Mumbai',
-      price: 'Price on request',
-      priceColor: 'from-amber-500 to-orange-600',
-      config: '2,3 BHK Luxury Apartments',
-      area: 'Area on request',
-      builder: 'Godrej Properties',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 2,
-      route: '/shapoorji-skyraa-thane',
-      status: 'Pre-Launch Phase',
-      title: 'Shapoorji Pallonji Skyraa',
-      location: 'Ppokhran Road, Thane',
-      price: '₹1.65 Cr onwards',
-      priceColor: 'from-blue-600 to-blue-800',
-      config: '3,4 BHK Luxury Condos',
-      area: '1120 - 1680 Sq.Ft.',
-      builder: 'Shapoorji Pallonji',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 3,
-      route: '/kalpataru-elitus-mulund',
-      status: 'Newly Launched',
-      title: 'Kalpataru Elitus Workspace',
-      location: 'LBS Marg, Mulund',
-      price: 'Price on request',
-      priceColor: 'from-amber-500 to-orange-600',
-      config: '1,2,3 BHK Smart Homes',
-      area: 'Area on request',
-      builder: 'Kalpataru Group',
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 4,
-      route: '/piramal-mahalaxmi-south',
-      status: 'Newly Launched',
-      title: 'Piramal Mahalaxmi South Central',
-      location: 'Mahalaxmi, South Mumbai',
-      price: '₹4.20 Cr onwards',
-      priceColor: 'from-blue-600 to-blue-800',
-      config: '2,3,4 BHK Skyscraping Flats',
-      area: '850 - 1860 Sq.Ft.',
-      builder: 'Piramal Realty',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80'
-    }
-  ]);
+  const dispatch = useDispatch();
+  const { listings, isLoading } = useSelector((state) => state.projects);
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
+
+  const launches = listings.filter(p => p.projectType === 'latest-launches');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLaunch, setEditingLaunch] = useState(null);
   const [formData, setFormData] = useState({
-    route: '', status: 'Newly Launched', title: '', location: '', price: '', priceColor: 'from-amber-500 to-orange-600', config: '', area: '', builder: '', image: null
+    route: '', status: 'Newly Launched', title: '', location: '', price: '', 
+    config: '', area: '', builder: '', image: null, carouselImages: [], amenities: [],
+    projectType: 'latest-launches'
   });
 
   const handleOpenAdd = () => {
     setEditingLaunch(null);
-    setFormData({ route: '', status: 'Newly Launched', title: '', location: '', price: '', priceColor: 'from-amber-500 to-orange-600', config: '', area: '', builder: '', image: null });
+    setFormData({
+      route: '', status: 'Newly Launched', title: '', location: '', price: '', 
+      config: '', area: '', builder: '', image: null, carouselImages: [],
+      possessionDate: '', reraId: '', totalApartments: '', launchDate: '',
+      availability: 'New and Resale', features: '', description: '', floorPlans: {},
+      amenities: [], projectType: 'latest-launches'
+    });
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (launch) => {
     setEditingLaunch(launch);
-    setFormData({ ...launch });
+    setFormData({ 
+      ...launch, 
+      existingCarousel: launch.carouselImages, 
+      carouselImages: [],
+      amenities: launch.amenities || [],
+      projectType: 'latest-launches'
+    });
     setIsModalOpen(true);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Confirm deletion of this new launch property card?")) {
-      setLaunches(launches.filter(l => l.id !== id));
+      dispatch(deleteProject(id));
     }
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const fallbackImg = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80';
-
-    const targetColor = formData.price.toLowerCase().includes('request') ? 'from-amber-500 to-orange-600' : 'from-blue-600 to-blue-800';
-
-    if (editingLaunch) {
-      setLaunches(launches.map(l => l.id === editingLaunch.id ? {
-        ...l, ...formData,
-        priceColor: targetColor,
-        image: typeof formData.image === 'string' ? formData.image : fallbackImg
-      } : l));
-    } else {
-      const newId = launches.length > 0 ? Math.max(...launches.map(l => l.id)) + 1 : 1;
-      setLaunches([...launches, {
-        id: newId, ...formData,
-        priceColor: targetColor,
-        image: fallbackImg
-      }]);
-    }
+    dispatch(saveProjectWithMedia({
+      formData: { ...formData, projectType: 'latest-launches' },
+      isEditing: !!editingLaunch,
+      existingId: editingLaunch?.id
+    }));
     setIsModalOpen(false);
   };
 
@@ -112,7 +69,7 @@ export default function LatestPropertyLaunches() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-black">
-            Latest Property Launches
+            Newly launched projects
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Control live pipeline tracking cards for newly launched catalog listings.</p>
         </div>
@@ -209,14 +166,14 @@ export default function LatestPropertyLaunches() {
         ))}
       </div>
 
-      {/* Renders the newly split child Modal workspace component */}
-      <LatestPropertyForm
+      {/* Renders the child Modal component linking to ProjectForm */}
+      <ProjectForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleFormSubmit}
         formData={formData}
         setFormData={setFormData}
         isEditing={!!editingLaunch}
+        existingId={editingLaunch?.id}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux'; // ⬅️ Connected to Redux Store
+import { useSelector } from 'react-redux'; 
 import { motion } from 'framer-motion';
 
 function StatusIcon({ status }) {
@@ -28,11 +28,10 @@ function PropertyCard({ project }) {
   return (
     <div 
       onClick={() => {
-        // Directs to your dynamic detail view mapping route path
         navigate(`/property${project.route}`);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }}
-      className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] bg-white cursor-pointer rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group"
+      className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] bg-white cursor-pointer rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-blue-500/20 transition-all duration-300 overflow-hidden group"
     >
       <div className="relative overflow-hidden">
         <img
@@ -61,7 +60,7 @@ function PropertyCard({ project }) {
       <div className="p-4 space-y-1.5">
         <h3 className="font-semibold text-gray-900 text-[15px] leading-snug line-clamp-1">{project.title}</h3>
         <p className="text-gray-500 text-[13px]">{project.location}</p>
-        <p className={`font-bold text-[15px] ${project.priceColor || 'text-orange-500'}`}>{project.price}</p>
+        <p className={`font-bold text-[15px] ${project.priceColor || 'text-[#C0573E]'}`}>{project.price}</p>
         <div className="flex items-center gap-2 text-[12px] text-gray-500 pt-0.5">
           <span>{project.config}</span>
           <span className="w-px h-3 bg-gray-300"></span>
@@ -73,7 +72,6 @@ function PropertyCard({ project }) {
   );
 }
 
-// ─── Arrow Button ─────────────────────────────────────────────────────────────
 function ArrowButton({ direction, onClick, disabled }) {
   return (
     <button
@@ -83,7 +81,7 @@ function ArrowButton({ direction, onClick, disabled }) {
       className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-200
         ${disabled
           ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white'
-          : 'border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 bg-white shadow-sm'
+          : 'border-gray-300 text-gray-600 hover:border-black hover:text-black hover:bg-gray-100 bg-white shadow-sm'
         }`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -98,8 +96,8 @@ export default function FastMovingProjects() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   
-  // 🔑 SELECT DATA DIRECTLY FROM REDUX STORE STATE
   const { listings } = useSelector((state) => state.projects);
+  const projects = listings.filter(p => !p.projectType || p.projectType === 'fast-moving');
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -118,7 +116,7 @@ export default function FastMovingProjects() {
       el.removeEventListener('scroll', checkScroll);
       window.removeEventListener('resize', checkScroll);
     };
-  }, [listings]); // Re-verify parameters tracking array changes
+  }, [projects]);
 
   const scroll = (dir) => {
     const el = scrollRef.current;
@@ -131,7 +129,7 @@ export default function FastMovingProjects() {
     <motion.section 
       initial="hidden" whileInView="visible" viewport={{ once: true }}
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.25 } } }}
-      className="w-full bg-white py-10 md:py-14"
+      className="w-full bg-[#F3EBE3] py-10 md:py-14"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16 flex flex-col gap-6">
         <motion.div 
@@ -139,7 +137,7 @@ export default function FastMovingProjects() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="flex items-center justify-between"
         >
-          <h2 className="text-[22px] sm:text-[26px] md:text-[30px] font-bold text-gray-900 leading-tight">
+          <h2 className="text-[22px] sm:text-[26px] md:text-[30px] font-bold text-gray-900 leading-tight tracking-tight">
             Fast Moving Projects
           </h2>
           <div className="flex items-center gap-3">
@@ -158,7 +156,7 @@ export default function FastMovingProjects() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
-          {listings.map((project) => (
+          {projects.map((project) => (
             <PropertyCard key={project.id} project={project} />
           ))}
         </motion.div>

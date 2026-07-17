@@ -35,6 +35,9 @@ export const saveProjectWithMedia = createAsyncThunk(
       data.append('totalApartments', formData.totalApartments || '');
       data.append('launchDate', formData.launchDate || '');
       data.append('description', formData.description || '');
+      data.append('projectType', formData.projectType || 'fast-moving');
+      data.append('config', formData.config || '');
+      data.append('area', formData.area || '');
 
       const featuresArr = Array.isArray(formData.features)
         ? formData.features

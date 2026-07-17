@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import Dropdown from './Dropdown';
 
 export default function Navbar() {
+  const { admin } = useSelector((state) => state.admin);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -35,42 +37,45 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   return (
-    <nav className="w-full bg-[#FFFFFF] sticky top-0 z-50 px-6 py-3 md:px-16 border-b border-orange-100/50">
+    <nav className="w-full bg-white/90 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-16 border-b border-orange-100/40 shadow-xs transition-all duration-350">
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
         
         {/* Left Side: Logo */}
-        <a href="/" className="flex items-center z-10 hover:opacity-90 transition-opacity">
+        <a href="/" className="flex items-center z-10 hover:scale-102 transition-transform duration-300">
           <img 
             src="/images/logo.webp" 
             alt="Real Estate Logo" 
-            className="w-20 h-20 object-contain" 
+            className="w-16 h-16 md:w-18 md:h-18 object-contain" 
           />
         </a>
 
         {/* Center: Desktop Navigation Links */}
         <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none">
-          <div className="flex items-center space-x-8 font-medium text-gray-800 pointer-events-auto">
-            <a href="/" className="hover:text-blue-600 transition-colors">Home</a>
+          <div className="flex items-center space-x-9 font-semibold text-gray-800 pointer-events-auto">
+            <a href="/" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+              Home
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
+            </a>
             
-            <div className="relative py-2" ref={dropdownRef}>
+            <div className="relative py-1" ref={dropdownRef}>
               <button 
                 onClick={handleToggle}
-                className={`hover:text-blue-600 font-semibold transition-colors flex items-center gap-1 cursor-pointer outline-none ${
+                className={`hover:text-blue-600 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer outline-none text-[15px] group pb-0.5 ${
                   isOpen ? 'text-blue-600' : 'text-gray-800'
                 }`}
               >
                 Properties
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  width="14" 
-                  height="14" 
+                  width="13" 
+                  height="13" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   stroke="currentColor" 
-                  strokeWidth="2" 
+                  strokeWidth="2.5" 
                   strokeLinecap="round" 
                   strokeLinejoin="round" 
-                  className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+                  className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-600' : 'rotate-0 text-gray-500 group-hover:text-blue-600'}`}
                 >
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
@@ -83,19 +88,34 @@ export default function Navbar() {
               )}
             </div>
 
-            <a href="/about" className="hover:text-blue-600 transition-colors">About Us</a>
-            <a href="/contact" className="hover:text-blue-600 transition-colors">Contact Us</a>
+            <a href="/about" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+              About Us
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
+            </a>
+            <a href="/contact" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+              Contact Us
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
+            </a>
           </div>
         </div>
 
-        {/* Right Side: Fixed Login Button */}
+        {/* Right Side: Fixed Login/Dashboard Button */}
         <div className="hidden md:block z-10">
-          <a 
-            href="/login" 
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md shadow-blue-100"
-          >
-            Login
-          </a>
+          {admin ? (
+            <a 
+              href="/admin" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-md shadow-blue-200/50 hover:shadow-lg active:scale-95 block"
+            >
+              Dashboard
+            </a>
+          ) : (
+            <a 
+              href="/login" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-md shadow-blue-200/50 hover:shadow-lg active:scale-95 block"
+            >
+              Login
+            </a>
+          )}
         </div>
 
         {/* Hamburger Button (Mobile) */}
@@ -181,15 +201,25 @@ export default function Navbar() {
             Contact Us
           </a>
 
-          {/* Fixed Mobile Login Button */}
+          {/* Fixed Mobile Login/Dashboard Button */}
           <div className="pt-2">
-            <a 
-              href="/login" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
-            >
-              Login
-            </a>
+            {admin ? (
+              <a 
+                href="/admin" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
+              >
+                Dashboard
+              </a>
+            ) : (
+              <a 
+                href="/login" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-base font-semibold hover:bg-blue-700 transition"
+              >
+                Login
+              </a>
+            )}
           </div>
         </div>
       </div>

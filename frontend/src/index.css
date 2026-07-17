@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@tailwind utilities;
+
 
 @theme {
   /* This configures the default sans-serif font utility stack to use Sora */
@@ -75,4 +77,10 @@ body {
 
 .delay-700 {
   animation-delay: 1.9s; /* 1.2s + 0.7s */
+}
+
+
+@layer base {
+  html, body { font-family: 'Inter', system-ui, sans-serif; color: #1F2937; }
+  h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.01em; }
 }

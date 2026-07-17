@@ -1,107 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Plus, Pencil, Trash2, MapPin, Building2, Home, Maximize2 } from 'lucide-react';
-import ExclusiveForm from './ExclusiveForm'; // Imports the corresponding form layout
+import { fetchProjects, deleteProject, saveProjectWithMedia } from '../redux/dashbord-card-1/projectSlice';
+import ProjectForm from './ProjectForm'; // Imports the common project form layout
 
 export default function ExclusiveProjects() {
-  const [exclusives, setExclusives] = useState([
-    {
-      id: 1,
-      route: '/dlf-kings-court-delhi',
-      status: 'Exclusive Collection',
-      title: 'DLF Kings Court Mansions',
-      location: 'Greater Kailash, New Delhi',
-      price: '₹22.50 Cr onwards',
-      priceColor: 'from-blue-600 to-blue-800',
-      config: '5 BHK Super Luxury Villas',
-      area: '6500 - 8200 Sq.Ft.',
-      builder: 'DLF Luxury',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 2,
-      route: '/lodha-altamount-mumbai',
-      status: 'By Invitation Only',
-      title: 'Lodha Altamount Duplexes',
-      location: 'Altamount Road, Mumbai',
-      price: 'Price on request',
-      priceColor: 'from-amber-500 to-orange-600',
-      config: '4,5 BHK Bare-Shell Estates',
-      area: 'Area on request',
-      builder: 'Lodha Luxury',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 3,
-      route: '/total-environment-windmills',
-      status: 'Exclusive Collection',
-      title: 'Windmills of Your Mind',
-      location: 'Whitefield, Bangalore',
-      price: '₹8.90 Cr onwards',
-      priceColor: 'from-blue-600 to-blue-800',
-      config: '4 BHK Duplex Earth-Homes',
-      area: '5920 Sq.Ft. Built',
-      builder: 'Total Environment',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 4,
-      route: '/phoenix-kessaku-bangalore',
-      status: 'Ready to Move',
-      title: 'Phoenix Kessaku Sky-Villas',
-      location: 'Rajajinagar, Bangalore',
-      price: 'Price on request',
-      priceColor: 'from-amber-500 to-orange-600',
-      config: '4,5 BHK Presidential Layouts',
-      area: 'Area on request',
-      builder: 'Phoenix Mills',
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'
-    }
-  ]);
+  const dispatch = useDispatch();
+  const { listings, isLoading } = useSelector((state) => state.projects);
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
+
+  const exclusives = listings.filter(p => p.projectType === 'exclusive');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExclusive, setEditingExclusive] = useState(null);
   const [formData, setFormData] = useState({
-    route: '', status: 'Exclusive Collection', title: '', location: '', price: '', priceColor: 'from-amber-500 to-orange-600', config: '', area: '', builder: '', image: null
+    route: '', status: 'Exclusive Collection', title: '', location: '', price: '', 
+    config: '', area: '', builder: '', image: null, carouselImages: [], amenities: [],
+    projectType: 'exclusive'
   });
 
   const handleOpenAdd = () => {
     setEditingExclusive(null);
-    setFormData({ route: '', status: 'Exclusive Collection', title: '', location: '', price: '', priceColor: 'from-amber-500 to-orange-600', config: '', area: '', builder: '', image: null });
+    setFormData({
+      route: '', status: 'Exclusive Collection', title: '', location: '', price: '', 
+      config: '', area: '', builder: '', image: null, carouselImages: [],
+      possessionDate: '', reraId: '', totalApartments: '', launchDate: '',
+      availability: 'New and Resale', features: '', description: '', floorPlans: {},
+      amenities: [], projectType: 'exclusive'
+    });
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (project) => {
     setEditingExclusive(project);
-    setFormData({ ...project });
+    setFormData({ 
+      ...project, 
+      existingCarousel: project.carouselImages, 
+      carouselImages: [],
+      amenities: project.amenities || [],
+      projectType: 'exclusive'
+    });
     setIsModalOpen(true);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Confirm deletion of this premium exclusive property listing?")) {
-      setExclusives(exclusives.filter(e => e.id !== id));
+      dispatch(deleteProject(id));
     }
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const fallbackImg = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80';
-
-    const targetColor = formData.price.toLowerCase().includes('request') ? 'from-amber-500 to-orange-600' : 'from-blue-600 to-blue-800';
-
-    if (editingExclusive) {
-      setExclusives(exclusives.map(e => e.id === editingExclusive.id ? {
-        ...e, ...formData,
-        priceColor: targetColor,
-        image: typeof formData.image === 'string' ? formData.image : fallbackImg
-      } : e));
-    } else {
-      const newId = exclusives.length > 0 ? Math.max(...exclusives.map(e => e.id)) + 1 : 1;
-      setExclusives([...exclusives, {
-        id: newId, ...formData,
-        priceColor: targetColor,
-        image: fallbackImg
-      }]);
-    }
+    dispatch(saveProjectWithMedia({
+      formData: { ...formData, projectType: 'exclusive' },
+      isEditing: !!editingExclusive,
+      existingId: editingExclusive?.id
+    }));
     setIsModalOpen(false);
   };
 
@@ -209,14 +166,14 @@ export default function ExclusiveProjects() {
         ))}
       </div>
 
-      {/* Renders the child Modal component linking to ExclusiveForm */}
-      <ExclusiveForm
+      {/* Renders the child Modal component linking to ProjectForm */}
+      <ProjectForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleFormSubmit}
         formData={formData}
         setFormData={setFormData}
         isEditing={!!editingExclusive}
+        existingId={editingExclusive?.id}
       />
     </div>
   );
