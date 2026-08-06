@@ -199,8 +199,14 @@ exports.updateProject = async (req, res) => {
 
     const formattedRoute = route ? (route.startsWith("/") ? route : "/" + route) : project.route;
 
-    if (formattedRoute && formattedRoute !== project.route) {
-      const routeExists = await Project.findOne({ where: { route: formattedRoute } });
+    if (formattedRoute) {
+      const { Op } = require("sequelize");
+      const routeExists = await Project.findOne({
+        where: {
+          route: formattedRoute,
+          id: { [Op.ne]: id }
+        }
+      });
       if (routeExists) {
         return res.status(400).json({ message: "A project with this route already exists." });
       }
