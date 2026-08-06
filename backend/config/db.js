@@ -18,6 +18,8 @@ const sequelize = new Sequelize(
     port: dbPort,
     dialect: "mysql",
     logging: false, // Turn off console logs for database queries
+    charset: "utf8mb4", // Support full Unicode (₹ symbol, emojis, etc.)
+    collate: "utf8mb4_unicode_ci",
   }
 );
 

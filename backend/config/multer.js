@@ -22,6 +22,7 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5 MB per file
     fieldSize: 15 * 1024 * 1024, // 15 MB per text field
   },
+  defParamCharset: "utf8", // Decode text fields (price, title, etc.) as UTF-8 to preserve special characters like ₹
 });
 
 module.exports = { upload };

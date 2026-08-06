@@ -159,6 +159,13 @@ const configureMaxAllowedPacket = async () => {
   } catch (error) {
     console.warn("⚠️ Warning: Could not ALTER Projects table columns to LONGTEXT. Make sure to set them to LONGTEXT manually in phpMyAdmin:", error.message);
   }
+
+  try {
+    await sequelize.query("ALTER TABLE Projects CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+    console.log("✅ Successfully converted Projects table to utf8mb4!");
+  } catch (error) {
+    console.warn("⚠️ Warning: Could not convert Projects table to utf8mb4:", error.message);
+  }
 };
 
 // Ensure DB exists first, then sync and start server
