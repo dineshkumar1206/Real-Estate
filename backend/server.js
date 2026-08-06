@@ -26,7 +26,9 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://real-estate-alpha-sand-38.vercel.app"
+      "https://real-estate-alpha-sand-38.vercel.app",
+      "https://www.connectyourealty.in",
+      "https://connectyourealty.in" 
     ], 
     credentials: true,
   })
@@ -142,12 +144,22 @@ const seedAdmin = async () => {
   }
 };
 
+const configureMaxAllowedPacket = async () => {
+  try {
+    await sequelize.query("SET GLOBAL max_allowed_packet = 104857600;");
+    console.log("✅ Successfully configured database max_allowed_packet to 100MB globally!");
+  } catch (error) {
+    console.warn("⚠️ Warning: Could not set global max_allowed_packet. You might need to set it in cPanel/phpMyAdmin:", error.message);
+  }
+};
+
 // Ensure DB exists first, then sync and start server
 ensureDatabaseExists().then(() => {
   sequelize
     .sync({ alter: true })
     .then(async () => {
       console.log("🚀 Database connected & synced successfully!");
+      await configureMaxAllowedPacket();
       await seedAdmin();
       app.listen(PORT, () => {
         console.log(`📡 Server running on http://localhost:${PORT}`);

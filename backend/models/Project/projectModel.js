@@ -77,7 +77,7 @@ const Project = sequelize.define(
       allowNull: true,
     },
     image: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT("long"),
       allowNull: true,
     },
     imageMimeType: {
@@ -89,7 +89,7 @@ const Project = sequelize.define(
       allowNull: true,
     },
     carouselImages: {
-      type: DataTypes.TEXT,
+      type: DataTypes.TEXT("long"),
       allowNull: true,
       get() {
         const rawValue = this.getDataValue("carouselImages");

@@ -1,33 +1,14 @@
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
 
-// Ensure the local uploads directory exists
-const uploadDir = path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure local disk storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    // Secure filename generation to avoid collision or path traversal
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
-  },
-});
+// Configure memory storage instead of disk storage to avoid saving files on disk
+const storage = multer.memoryStorage();
 
 // File validation filter for security
 const fileFilter = (req, file, cb) => {
   const allowedFileTypes = /jpeg|jpg|png|webp/;
   const isMimeValid = allowedFileTypes.test(file.mimetype);
-  const isExtValid = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
 
-  if (isMimeValid && isExtValid) {
+  if (isMimeValid) {
     return cb(null, true);
   }
   cb(new Error("Only images of format JPEG, JPG, PNG, or WEBP are allowed!"), false);

@@ -1,16 +1,22 @@
 const Project = require("../../models/Project/projectModel");
 
-// Helper to generate full URLs for statically served images
+// Helper to convert uploaded file buffer to Base64 data URL
+const fileToBase64 = (file) => {
+  if (!file || !file.buffer) return "";
+  return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+};
+
+// Helper to generate full URLs for older statically served relative paths
 const getFullUrl = (req, relativePath) => {
   if (!relativePath) return "";
-  if (relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
+  if (relativePath.startsWith("data:") || relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
     return relativePath;
   }
   const cleanPath = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
   return `${req.protocol}://${req.get("host")}${cleanPath}`;
 };
 
-// Helper to dynamically format project images in response
+// Helper to dynamically format project images in response (supports old path fallback)
 const formatProjectImages = (req, project) => {
   if (!project) return null;
   const projectJson = project.toJSON ? project.toJSON() : { ...project };
@@ -98,7 +104,7 @@ exports.createProject = async (req, res) => {
     // Set main image URL if uploaded, otherwise empty
     let mainImageUrl = "";
     if (req.files && req.files["image"] && req.files["image"][0]) {
-      mainImageUrl = `/uploads/${req.files["image"][0].filename}`;
+      mainImageUrl = fileToBase64(req.files["image"][0]);
     }
 
     // Compile gallery image URLs
@@ -107,7 +113,7 @@ exports.createProject = async (req, res) => {
       req.files["carouselImagesFiles"].forEach((file) => {
         carouselImages.push({
           id: Date.now() + Math.random(),
-          src: `/uploads/${file.filename}`,
+          src: fileToBase64(file),
           alt: file.originalname || "Gallery image",
         });
       });
@@ -203,7 +209,7 @@ exports.updateProject = async (req, res) => {
     // Main image URL resolution
     let mainImageUrl = project.image;
     if (req.files && req.files["image"] && req.files["image"][0]) {
-      mainImageUrl = `/uploads/${req.files["image"][0].filename}`;
+      mainImageUrl = fileToBase64(req.files["image"][0]);
     } else if (existingImage !== undefined) {
       mainImageUrl = existingImage;
     }
@@ -227,7 +233,7 @@ exports.updateProject = async (req, res) => {
       req.files["carouselImagesFiles"].forEach((file) => {
         carouselImages.push({
           id: Date.now() + Math.random(),
-          src: `/uploads/${file.filename}`,
+          src: fileToBase64(file),
           alt: file.originalname || "Gallery image",
         });
       });
