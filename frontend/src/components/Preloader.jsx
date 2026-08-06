@@ -40,8 +40,7 @@ function BuildingAnimation() {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 120 130"
-      width="140"
-      height="140"
+      className="w-24 h-24 sm:w-36 sm:h-36 md:w-40 md:h-40"
       aria-label="Building animation"
     >
       <circle cx="60" cy="72" r="54" fill="#EAF4FB" opacity="0.7" />
@@ -354,7 +353,7 @@ export default function Preloader() {
         >
           <BuildingAnimation />
           <div
-            className="absolute -bottom-1 w-20 h-2 bg-black/10 rounded-full blur-[5px]"
+            className="absolute -bottom-1 w-16 h-1.5 sm:w-20 sm:h-2 bg-black/10 rounded-full blur-[5px]"
             style={{ animation: 'shadowPulse 2.2s ease-in-out infinite' }}
           />
         </div>
