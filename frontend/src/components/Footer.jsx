@@ -12,9 +12,9 @@ export default function Footer() {
           <div className="lg:col-span-4 space-y-4">
             <div>
               <img
-                src="/images/logo.webp"
+                src="/images/logo-footer.png"
                 alt="Connect You Real Estate Logo"
-                className="h-15 w-auto brightness-110"
+                className="h-24 w-auto brightness-110"
               />
             </div>
             <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-normal">

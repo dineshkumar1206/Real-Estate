@@ -53,16 +53,16 @@ export const saveProjectWithMedia = createAsyncThunk(
             : []);
       data.append('amenities', JSON.stringify(amenitiesArr));
 
-      // Primary image
+      // Primary image: only send a new file when one is picked; otherwise leave it
+      // empty so the backend keeps the existing image (avoids re-sending large base64 text)
       if (formData.image instanceof File) {
         data.append('image', formData.image);
-      } else {
-        data.append('image', formData.image || '');
       }
 
-      // Carousel images handling
+      // Carousel images handling: send only the ids of existing images to keep.
+      // The backend re-attaches the stored src, so we avoid sending large base64 text back.
       const existingCarousel = formData.existingCarousel || formData.carouselImages || [];
-      data.append('existingCarouselImages', JSON.stringify(existingCarousel));
+      data.append('existingCarouselImages', JSON.stringify(existingCarousel.map((img) => ({ id: img.id }))));
 
       if (formData.carouselImagesFiles && formData.carouselImagesFiles.length > 0) {
         formData.carouselImagesFiles.forEach((item) => {

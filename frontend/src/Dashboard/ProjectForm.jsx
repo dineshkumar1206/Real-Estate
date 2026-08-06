@@ -36,9 +36,48 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
     }
   };
 
+  const cleanPrice = (price) => {
+    if (!price) return "Price on request";
+    let cleaned = price.trim();
+    // Remove "Rs.", "Rs", "INR", "inr" (case insensitive)
+    cleaned = cleaned.replace(/rs\.?|inr/ig, "").trim();
+    // Ensure it starts with ₹
+    if (!cleaned.startsWith("₹")) {
+      cleaned = "₹ " + cleaned;
+    }
+    // Replace multiple spaces
+    cleaned = cleaned.replace(/\s+/g, " ");
+    return cleaned;
+  };
+
+  const removeExistingImage = (imgId) => {
+    const existing = formData.existingCarousel || formData.carouselImages || [];
+    const updated = existing.filter(img => img.id !== imgId);
+    setFormData({
+      ...formData,
+      existingCarousel: updated,
+      carouselImages: updated
+    });
+  };
+
+  const removeStagedImage = (index) => {
+    const staged = formData.carouselImagesFiles || [];
+    const updated = staged.filter((_, idx) => idx !== index);
+    setFormData({
+      ...formData,
+      carouselImagesFiles: updated
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(saveProjectWithMedia({ formData, isEditing, existingId }))
+    const formattedPrice = cleanPrice(formData.price);
+    const updatedFormData = {
+      ...formData,
+      price: formattedPrice
+    };
+
+    dispatch(saveProjectWithMedia({ formData: updatedFormData, isEditing, existingId }))
       .unwrap()
       .then(() => {
         onClose();
@@ -202,6 +241,55 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
               </div>
             </div>
           </div>
+
+          {/* Gallery Previews and Management */}
+          {((formData.existingCarousel || formData.carouselImages || []).length > 0 || (formData.carouselImagesFiles || []).length > 0) && (
+            <div className="space-y-2 border-t border-gray-800 pt-4">
+              <label className="text-xs font-semibold text-gray-400 uppercase">Gallery Image Management</label>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 bg-gray-900/60 p-4 rounded-xl border border-gray-700 max-h-[220px] overflow-y-auto custom-scrollbar">
+                
+                {/* Render Existing Gallery Images */}
+                {(formData.existingCarousel || formData.carouselImages || []).map((img) => (
+                  <div key={img.id} className="relative aspect-video rounded-lg overflow-hidden border border-gray-800 bg-slate-950 group">
+                    <img src={img.src} alt={img.alt || "Gallery"} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingImage(img.id)}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 cursor-pointer shadow opacity-80 hover:opacity-100 transition-opacity z-20"
+                      title="Remove Image"
+                    >
+                      <X size={10} />
+                    </button>
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-gray-300 py-0.5 text-center truncate">
+                      Saved
+                    </span>
+                  </div>
+                ))}
+
+                {/* Render Staged Gallery Images */}
+                {(formData.carouselImagesFiles || []).map((item, idx) => {
+                  const objectUrl = item.file instanceof File ? URL.createObjectURL(item.file) : "";
+                  return (
+                    <div key={idx} className="relative aspect-video rounded-lg overflow-hidden border border-orange-500/30 bg-slate-950 group">
+                      {objectUrl && <img src={objectUrl} alt={item.alt || "Staged"} className="w-full h-full object-cover" />}
+                      <button
+                        type="button"
+                        onClick={() => removeStagedImage(idx)}
+                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 cursor-pointer shadow opacity-80 hover:opacity-100 transition-opacity z-20"
+                        title="Remove Staged Image"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute bottom-0 inset-x-0 bg-orange-600/80 text-[9px] text-white py-0.5 text-center truncate">
+                        Staged
+                      </span>
+                    </div>
+                  );
+                })}
+
+              </div>
+            </div>
+          )}
 
           {/* Execution Controls Panel footer */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800 shrink-0">

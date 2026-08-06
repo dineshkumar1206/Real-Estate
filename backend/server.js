@@ -151,6 +151,14 @@ const configureMaxAllowedPacket = async () => {
   } catch (error) {
     console.warn("⚠️ Warning: Could not set global max_allowed_packet. You might need to set it in cPanel/phpMyAdmin:", error.message);
   }
+
+  try {
+    await sequelize.query("ALTER TABLE Projects MODIFY COLUMN image LONGTEXT;");
+    await sequelize.query("ALTER TABLE Projects MODIFY COLUMN carouselImages LONGTEXT;");
+    console.log("✅ Successfully altered Projects columns to LONGTEXT!");
+  } catch (error) {
+    console.warn("⚠️ Warning: Could not ALTER Projects table columns to LONGTEXT. Make sure to set them to LONGTEXT manually in phpMyAdmin:", error.message);
+  }
 };
 
 // Ensure DB exists first, then sync and start server

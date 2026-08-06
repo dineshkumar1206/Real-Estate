@@ -37,22 +37,22 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   return (
-    <nav className="w-full bg-white/90 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-16 border-b border-orange-100/40 shadow-xs transition-all duration-350">
+    <nav className="w-full bg-white/90 backdrop-blur-md sticky top-0 z-50 px-5 py-2 md:px-10 border-b border-orange-100/40 shadow-xs transition-all duration-350">
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
         
         {/* Left Side: Logo */}
         <a href="/" className="flex items-center z-10 hover:scale-102 transition-transform duration-300">
           <img 
-            src="/images/logo.webp" 
+            src="/images/logo.png" 
             alt="Real Estate Logo" 
-            className="w-16 h-16 md:w-18 md:h-18 object-contain" 
+            className="w-32 h-32 md:w-36 md:h-36 object-contain" 
           />
         </a>
 
         {/* Center: Desktop Navigation Links */}
         <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none">
-          <div className="flex items-center space-x-9 font-semibold text-gray-800 pointer-events-auto">
-            <a href="/" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+          <div className="flex items-center space-x-6 font-medium text-gray-800 pointer-events-auto">
+            <a href="/" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-sm">
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
             </a>
@@ -60,7 +60,7 @@ export default function Navbar() {
             <div className="relative py-1" ref={dropdownRef}>
               <button 
                 onClick={handleToggle}
-                className={`hover:text-blue-600 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer outline-none text-[15px] group pb-0.5 ${
+                className={`hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 cursor-pointer outline-none text-sm group pb-0.5 ${
                   isOpen ? 'text-blue-600' : 'text-gray-800'
                 }`}
               >
@@ -88,11 +88,11 @@ export default function Navbar() {
               )}
             </div>
 
-            <a href="/about" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+            <a href="/about" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-sm">
               About Us
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
             </a>
-            <a href="/contact" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-[15px]">
+            <a href="/contact" className="relative hover:text-blue-600 transition-colors duration-300 py-1 group text-sm">
               Contact Us
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full" />
             </a>
@@ -141,11 +141,10 @@ export default function Navbar() {
       </div>
 
       {/* --- MOBILE SLIDEOUT DRAWER --- */}
+      {isMobileMenuOpen && (
       <div
         ref={mobileMenuRef}
-        className={`fixed top-0 right-0 h-screen w-72 bg-[#FFFFFF] shadow-2xl border-l border-orange-100 transform transition-transform duration-300 ease-in-out z-40 md:hidden pt-24 ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className="fixed top-0 right-0 h-screen w-72 bg-[#FFFFFF] shadow-2xl border-l border-orange-100 z-40 md:hidden pt-24 animate-slide-in"
       >
         <div className="flex flex-col p-6 space-y-5 font-medium text-lg text-gray-800">
           <a 
@@ -223,6 +222,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      )}
     </nav>
   );
 }

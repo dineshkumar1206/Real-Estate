@@ -29,6 +29,9 @@ const handleImageUpload = (req, res, next) => {
           case "LIMIT_UNEXPECTED_FILE":
             errorMessage = `Unexpected field uploaded: ${err.field}. Only 'image' (1 file) and 'carouselImagesFiles' (max 15 files) are allowed.`;
             break;
+          case "LIMIT_FIELD_VALUE":
+            errorMessage = "A form field value is too large. Please use a smaller image or reduce gallery size.";
+            break;
           default:
             errorMessage = err.message;
         }

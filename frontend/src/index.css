@@ -63,6 +63,19 @@ body {
   animation: zoomInNormal 1s ease-out forwards;
 }
 
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
 /* --- Preloader Synchronized Animation Delays (Starts after 1.2s) --- */
 
 .delay-preloader-base {

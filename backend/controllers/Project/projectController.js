@@ -214,18 +214,19 @@ exports.updateProject = async (req, res) => {
       mainImageUrl = existingImage;
     }
 
-    // Parse existing carousel images
-    let carouselImages = [];
+    // Keep existing carousel images whose ids are present in the request
+    // (the client sends ids only, so we re-attach the stored src instead of trusting the payload)
+    let carouselImages = project.carouselImages || [];
     if (existingCarouselImages) {
       try {
-        carouselImages = typeof existingCarouselImages === "string"
+        const sent = typeof existingCarouselImages === "string"
           ? JSON.parse(existingCarouselImages)
           : existingCarouselImages;
+        const sentIds = new Set(sent.map((img) => String(img && img.id)).filter(Boolean));
+        carouselImages = (project.carouselImages || []).filter((img) => sentIds.has(String(img.id)));
       } catch (e) {
         carouselImages = [];
       }
-    } else {
-      carouselImages = project.carouselImages || [];
     }
 
     // Append new uploaded carousel images

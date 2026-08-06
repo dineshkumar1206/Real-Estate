@@ -14,11 +14,14 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Only images of format JPEG, JPG, PNG, or WEBP are allowed!"), false);
 };
 
-// Expose multer upload middleware with size limit of 5MB
+// Expose multer upload middleware with size limit of 5MB per file and 15MB per text field
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB per file
+    fieldSize: 15 * 1024 * 1024, // 15 MB per text field
+  },
 });
 
 module.exports = { upload };
