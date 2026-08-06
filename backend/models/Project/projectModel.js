@@ -77,7 +77,15 @@ const Project = sequelize.define(
       allowNull: true,
     },
     image: {
-      type: DataTypes.STRING(500),
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    imageMimeType: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    imageAlt: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
     carouselImages: {

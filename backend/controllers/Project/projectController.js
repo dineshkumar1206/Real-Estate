@@ -1,12 +1,42 @@
 const Project = require("../../models/Project/projectModel");
 
+// Helper to generate full URLs for statically served images
+const getFullUrl = (req, relativePath) => {
+  if (!relativePath) return "";
+  if (relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
+    return relativePath;
+  }
+  const cleanPath = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+  return `${req.protocol}://${req.get("host")}${cleanPath}`;
+};
+
+// Helper to dynamically format project images in response
+const formatProjectImages = (req, project) => {
+  if (!project) return null;
+  const projectJson = project.toJSON ? project.toJSON() : { ...project };
+  
+  if (projectJson.image) {
+    projectJson.image = getFullUrl(req, projectJson.image);
+  }
+  
+  if (Array.isArray(projectJson.carouselImages)) {
+    projectJson.carouselImages = projectJson.carouselImages.map((img) => ({
+      ...img,
+      src: getFullUrl(req, img.src),
+    }));
+  }
+  
+  return projectJson;
+};
+
 // Get all projects
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.findAll({
       order: [["createdAt", "DESC"]],
     });
-    res.status(200).json(projects);
+    const formattedProjects = projects.map((p) => formatProjectImages(req, p));
+    res.status(200).json(formattedProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
     res.status(500).json({ message: "Failed to fetch projects." });
@@ -25,7 +55,7 @@ exports.getProjectByRoute = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found." });
     }
-    res.status(200).json(project);
+    res.status(200).json(formatProjectImages(req, project));
   } catch (error) {
     console.error("Error fetching project by route:", error);
     res.status(500).json({ message: "Failed to fetch project details." });
@@ -68,7 +98,7 @@ exports.createProject = async (req, res) => {
     // Set main image URL if uploaded, otherwise empty
     let mainImageUrl = "";
     if (req.files && req.files["image"] && req.files["image"][0]) {
-      mainImageUrl = req.files["image"][0].path;
+      mainImageUrl = `/uploads/${req.files["image"][0].filename}`;
     }
 
     // Compile gallery image URLs
@@ -77,7 +107,7 @@ exports.createProject = async (req, res) => {
       req.files["carouselImagesFiles"].forEach((file) => {
         carouselImages.push({
           id: Date.now() + Math.random(),
-          src: file.path,
+          src: `/uploads/${file.filename}`,
           alt: file.originalname || "Gallery image",
         });
       });
@@ -124,7 +154,7 @@ exports.createProject = async (req, res) => {
       area: area || "",
     });
 
-    res.status(201).json(newProject);
+    res.status(201).json(formatProjectImages(req, newProject));
   } catch (error) {
     console.error("Error creating project:", error);
     res.status(500).json({ message: "Failed to create project: " + error.message });
@@ -173,7 +203,7 @@ exports.updateProject = async (req, res) => {
     // Main image URL resolution
     let mainImageUrl = project.image;
     if (req.files && req.files["image"] && req.files["image"][0]) {
-      mainImageUrl = req.files["image"][0].path;
+      mainImageUrl = `/uploads/${req.files["image"][0].filename}`;
     } else if (existingImage !== undefined) {
       mainImageUrl = existingImage;
     }
@@ -197,7 +227,7 @@ exports.updateProject = async (req, res) => {
       req.files["carouselImagesFiles"].forEach((file) => {
         carouselImages.push({
           id: Date.now() + Math.random(),
-          src: file.path,
+          src: `/uploads/${file.filename}`,
           alt: file.originalname || "Gallery image",
         });
       });
@@ -244,7 +274,7 @@ exports.updateProject = async (req, res) => {
       area: area !== undefined ? area : project.area,
     });
 
-    res.status(200).json(project);
+    res.status(200).json(formatProjectImages(req, project));
   } catch (error) {
     console.error("Error updating project:", error);
     res.status(500).json({ message: "Failed to update project: " + error.message });

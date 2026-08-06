@@ -17,7 +17,7 @@ const ALL_AMENITIES = [
 
 export default function ProjectForm({ isOpen, onClose, formData, setFormData, isEditing, existingId }) {
   const dispatch = useDispatch();
-  const { isLoading } = useSelector((state) => state.projects);
+  const { isLoading, error } = useSelector((state) => state.projects);
 
   if (!isOpen) return null;
 
@@ -38,8 +38,14 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(saveProjectWithMedia({ formData, isEditing, existingId }));
-    onClose();
+    dispatch(saveProjectWithMedia({ formData, isEditing, existingId }))
+      .unwrap()
+      .then(() => {
+        onClose();
+      })
+      .catch((err) => {
+        console.error("Failed to save project:", err);
+      });
   };
 
   const handleMultiImageTrack = (e) => {
@@ -62,6 +68,12 @@ export default function ProjectForm({ isOpen, onClose, formData, setFormData, is
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800"><X size={18} /></button>
         </div>
+
+        {error && (
+          <div className="bg-red-950/60 border border-red-800 text-red-200 px-6 py-3 text-xs rounded-xl mx-6 mt-4 shrink-0 font-medium">
+            ⚠️ {error}
+          </div>
+        )}
 
         {/* Input content scroll block wrapper */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar text-sm">

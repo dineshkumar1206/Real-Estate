@@ -6,14 +6,20 @@ require("dotenv").config();
 const sequelize = require("./config/db");
 const AdminAuth = require("./models/AdminAuth/adminAuth"); 
 const Project = require("./models/Project/projectModel"); 
+const ProjectImage = require("./models/Project/ProjectImage"); 
+
+Project.hasMany(ProjectImage, { as: "galleryImages", foreignKey: "projectId", onDelete: "CASCADE" });
+ProjectImage.belongsTo(Project, { foreignKey: "projectId", onDelete: "CASCADE" });
 const adminRoutes = require("./routes/AdminAuth/AdminRoutes"); // ⬅️ IMPORT ROUTES
 const inquiryRoutes = require("./routes/Inquiry/inquiryRoutes");
 const projectRoutes = require("./routes/Project/projectRoutes");
 
+const path = require("path");
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
   cors({
@@ -75,16 +81,81 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5175;
 
-sequelize
-  .sync({ alter: true })
-  .then(() => {
-    console.log("🚀 Database connected & synced successfully!");
-    app.listen(PORT, () => {
-      console.log(`📡 Server running on http://localhost:${PORT}`);
+const mysql = require("mysql2/promise");
+
+const ensureDatabaseExists = async () => {
+  const isProduction = process.env.NODE_ENV === "production" || 
+                       (process.env.DB_USER && process.env.DB_USER.startsWith("amigoweb_"));
+  const dbPort = isProduction ? 3306 : (process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306);
+
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      port: dbPort,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
     });
-  })
-  .catch((error) => {
-    console.error("❌ Database connection failed:", error.message);
-  });
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
+    await connection.end();
+    console.log(`✅ Checked/Created database: ${process.env.DB_NAME}`);
+  } catch (error) {
+    console.error("❌ Failed to ensure database exists:", error.message);
+  }
+};
+
+const seedAdmin = async () => {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  
+  if (!adminEmail || !adminPassword) {
+    console.log("⚠️ ADMIN_EMAIL or ADMIN_PASSWORD not specified in .env. Skipping admin seeding.");
+    return;
+  }
+
+  try {
+    const bcrypt = require("bcrypt");
+    // Find if a super_admin already exists
+    let admin = await AdminAuth.findOne({ where: { role: "super_admin" } });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPassword, salt);
+
+    if (admin) {
+      // Update existing admin email & password
+      admin.email = adminEmail;
+      admin.password = hashedPassword;
+      admin.name = "Super Admin";
+      await admin.save();
+      console.log("👤 Super Admin account successfully updated from .env!");
+    } else {
+      // Create new super_admin
+      await AdminAuth.create({
+        name: "Super Admin",
+        email: adminEmail,
+        password: hashedPassword,
+        role: "super_admin",
+        isActive: true
+      });
+      console.log("👤 Super Admin account successfully created from .env!");
+    }
+  } catch (error) {
+    console.error("❌ Error seeding/updating Admin account:", error.message);
+  }
+};
+
+// Ensure DB exists first, then sync and start server
+ensureDatabaseExists().then(() => {
+  sequelize
+    .sync({ alter: true })
+    .then(async () => {
+      console.log("🚀 Database connected & synced successfully!");
+      await seedAdmin();
+      app.listen(PORT, () => {
+        console.log(`📡 Server running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("❌ Database connection failed:", error.message);
+    });
+});
 
   module.exports = app;

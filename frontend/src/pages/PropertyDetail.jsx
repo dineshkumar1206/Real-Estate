@@ -215,8 +215,8 @@ export default function PropertyDetail() {
   }
 
   // Compile image sets
-  const mainImage = project.image || "https://placehold.co/1200x800?text=Listing+Cover";
   const gallery = Array.isArray(project.carouselImages) ? project.carouselImages : [];
+  const mainImage = gallery.length >= 2 ? gallery[1].src : (project.image || "https://placehold.co/1200x800?text=Listing+Cover");
 
   // Filter similar projects in the same category
   const similarProjects = listings.filter(
