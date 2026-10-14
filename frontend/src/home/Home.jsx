@@ -1,4 +1,3 @@
-import React from 'react'
 import Hero from './Hero'
 import FastMovingProjects from './Fastmovingprojects'
 import EverythingYouNeed from './Everythingyouneed'

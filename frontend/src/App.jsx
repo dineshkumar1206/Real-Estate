@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -17,17 +17,9 @@ import ContactUsPage from './pages/ContactUs';
 import Login from './pages/Login'; // Your Login Component
 import HomeDashboard from './Dashboard/HomeDashboard';
 import PropertyDetail from './pages/PropertyDetail';
+import Privacy from './pages/Privacy';
 import { fetchProjects } from './redux/dashbord-card-1/projectSlice';
 
-// Simple Protected Dashboard Component Placeholder
-const Dashboard = () => {
-  return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-blue-400">Admin Dashboard</h1>
-      <p className="text-gray-400 mt-2">Welcome back! You have secure access to manage your website.</p>
-    </div>
-  );
-};
 
 // Wrapper Layout to handle visibility
 const MainLayout = ({ children }) => {
@@ -67,6 +59,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<ContactUsPage />} />
+          <Route path="/privacy" element={<Privacy />} />
 
           {/* Project Pages */}
           <Route path="/centre-park" element={<CentrePark />} />

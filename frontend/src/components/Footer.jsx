@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -35,16 +35,16 @@ export default function Footer() {
             <h4 className="text-xs font-semibold text-white uppercase tracking-wider">Company</h4>
             <ul className="space-y-2 text-xs md:text-sm font-normal">
               <li>
-                <a href="/" className="hover:text-blue-500 transition-colors duration-200">Home</a>
+                <Link to="/" className="hover:text-blue-500 transition-colors duration-200">Home</Link>
               </li>
               <li>
-                <a href="/about" className="hover:text-blue-500 transition-colors duration-200">About Us</a>
+                <Link to="/about" className="hover:text-blue-500 transition-colors duration-200">About Us</Link>
               </li>
               <li>
-                <a href="/contact" className="hover:text-blue-500 transition-colors duration-200">Contact Portal</a>
+                <Link to="/contact" className="hover:text-blue-500 transition-colors duration-200">Contact Portal</Link>
               </li>
               <li>
-                <a href="/careers" className="hover:text-blue-500 transition-colors duration-200">Careers</a>
+                <Link to="/careers" className="hover:text-blue-500 transition-colors duration-200">Careers</Link>
               </li>
             </ul>
           </div>
@@ -54,16 +54,16 @@ export default function Footer() {
             <h4 className="text-xs font-semibold text-white uppercase tracking-wider">Our Solutions</h4>
             <ul className="space-y-2 text-xs md:text-sm font-normal">
               <li>
-                <a href="/properties" className="hover:text-blue-500 transition-colors duration-200">Premium Projects</a>
+                <Link to="/properties" className="hover:text-blue-500 transition-colors duration-200">Premium Projects</Link>
               </li>
               <li>
-                <a href="/loans" className="hover:text-blue-500 transition-colors duration-200">Home Loan Tracking</a>
+                <Link to="/loans" className="hover:text-blue-500 transition-colors duration-200">Home Loan Tracking</Link>
               </li>
               <li>
-                <a href="/legal" className="hover:text-blue-500 transition-colors duration-200">Legal Verification</a>
+                <Link to="/legal" className="hover:text-blue-500 transition-colors duration-200">Legal Verification</Link>
               </li>
               <li>
-                <a href="/privacy" className="hover:text-blue-500 transition-colors duration-200">Privacy Policy</a>
+                <Link to="/privacy" className="hover:text-blue-500 transition-colors duration-200">Privacy Policy</Link>
               </li>
             </ul>
           </div>
